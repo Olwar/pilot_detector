@@ -1,5 +1,8 @@
 import requests
 import xml.etree.ElementTree as ET
+from datetime import datetime, timedelta
+import sqlite3
+import time
 
 # no-fly zone coordinates from (300 000, 300 000) to (200 000, 200 000)
 
@@ -37,11 +40,27 @@ def get_violators_info(violators):
         violators_info[k] = [pilot_name, pilot_email, pilot_phone, pos_x, pos_y]
     return(violators_info)
 
+def database_handler(violators_info):
+    conn = sqlite3.connect('violators.db')
+    c = conn.cursor()
+    c.execute('''CREATE TABLE IF NOT EXISTS violators
+                 (time text, name text, email text, phone text, x text, y text)''')
+    for k,v in violators_info.items():
+        c.execute("INSERT INTO violators VALUES (?,?,?,?,?,?)", (datetime.now(), v[0], v[1], v[2], v[3], v[4]))
+    # delete all entries from the same name except the one where x and y are closest to (250 000, 250 000) and are max 10 minutes old
+    c.execute("DELETE FROM violators WHERE rowid NOT IN (SELECT rowid FROM violators WHERE time > ? GROUP BY name HAVING MIN(ABS(x - 250000) + ABS(y - 250000)))", (datetime.now() - timedelta(minutes=10),))
+    conn.commit()
+    conn.close()
+
 def main():
-    drones = get_drone_data()
-    violators = check_drone_position(drones)
-    violators_info = get_violators_info(violators)
-    return violators_info
+    while 1:
+        start_time = time.time()
+        drones = get_drone_data()
+        violators = check_drone_position(drones)
+        violators_info = get_violators_info(violators)
+        database_handler(violators_info)
+        print(f"check completed in {time.time() - start_time} seconds.")
+        time.sleep(1)
 
 if __name__ == '__main__':
     main()

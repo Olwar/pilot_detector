@@ -28,6 +28,7 @@ def check_drone_position(drones):
             violators[drone] = drones[drone]
     return violators
 
+# get violator info
 def get_violators_info(violators):
     violators_info = {}
     for k,v in violators.items():

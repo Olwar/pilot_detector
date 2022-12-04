@@ -53,6 +53,31 @@ def database_handler(violators_info):
     conn.commit()
     conn.close()
 
+# draws circles over the image in 'bird_nest.png' based on violators.db's x and y, x=250 000, y=250 000 is the center of the image and the edges are at x=300 000, y=300 000 and x=200 000, y=200 000
+def dot_marker():
+    import sqlite3
+    import cv2
+    import numpy as np
+
+    conn = sqlite3.connect('violators.db')
+    c = conn.cursor()
+    c.execute("SELECT x, y FROM violators")
+    rows = c.fetchall()
+    conn.close()
+
+    # scale x,y from violators.db go from 0 to 1000 where 250 000 eguals 500
+
+
+    img = cv2.imread('bird_nest.png')
+    for row in rows:
+        x = float(row[0])
+        y = float(row[1])
+        x = int((x - 200000) / 1000)
+        y = int((y - 200000) / 1000)
+        print(x, y)
+        cv2.circle(img, (x, y), 10, (255, 0, 0), -1)
+    cv2.imwrite('bird_nest.png', img)
+
 def main():
     while 1:
         start_time = time.time()
@@ -60,6 +85,7 @@ def main():
         violators = check_drone_position(drones)
         violators_info = get_violators_info(violators)
         database_handler(violators_info)
+        dot_marker()
         print(f"check completed in {time.time() - start_time} seconds.")
         time.sleep(0.5)
 

@@ -55,6 +55,8 @@ def database_handler(violators_info):
     conn.commit()
     conn.close()
 
+## ADD ID TO DATABASE AND NEXT TO THE CIRCLE AND TO THE TABLE
+
 # draws circles over the image in 'bird_nest.png' based on violators.db's x and y, x=250 000, y=250 000 is the center of the image and the edges are at x=300 000, y=300 000 and x=200 000, y=200 000
 def dot_marker():
     conn = sqlite3.connect('violators.db')

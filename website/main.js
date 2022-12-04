@@ -26,23 +26,26 @@ function hideloader() {
 // Function to define innerHTML for HTML table
 function show(data) {
     let tab =
-        `<tr>
-          <th>Name</th>
-          <th>Email</th>
-          <th>Phone</th>
-          <th>X-coordinate</th>
-          <th>Y-coordinate</th>
-         </tr>`;
+            `<tr>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Phone</th>
+              <th>X-coordinate</th>
+              <th>Y-coordinate</th>
+             </tr>`;
     
     // Loop to access all rows 
     for (r of data) {
-    tab += `<tr> 
-    <td>${r[0]}</td>
-    <td>${r[1]}</td>
-    <td>${r[2]}</td> 
-    <td>${r[3]}</td>
-    <td>${r[4]}</td>   
-    </tr>`;
+    tab += `
+    <table>
+        <tr>
+            <td>${r[0]}</td>
+            <td>${r[1]}</td>
+            <td>${r[2]}</td>
+            <td>${r[3]}</td>
+            <td>${r[4]}</td>
+        </tr>
+    </table>`;
     }
     // Setting innerHTML as tab variable
     document.getElementById("drones").innerHTML = tab;

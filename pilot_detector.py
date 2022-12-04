@@ -3,6 +3,8 @@ import xml.etree.ElementTree as ET
 from datetime import datetime, timedelta
 import sqlite3
 import time
+import cv2
+import numpy as np
 
 # no-fly zone coordinates from (300 000, 300 000) to (200 000, 200 000)
 
@@ -55,28 +57,20 @@ def database_handler(violators_info):
 
 # draws circles over the image in 'bird_nest.png' based on violators.db's x and y, x=250 000, y=250 000 is the center of the image and the edges are at x=300 000, y=300 000 and x=200 000, y=200 000
 def dot_marker():
-    import sqlite3
-    import cv2
-    import numpy as np
-
     conn = sqlite3.connect('violators.db')
     c = conn.cursor()
     c.execute("SELECT x, y FROM violators")
     rows = c.fetchall()
     conn.close()
-
-    # scale x,y from violators.db go from 0 to 1000 where 250 000 eguals 500
-
-
     img = cv2.imread('bird_nest.png')
     for row in rows:
         x = float(row[0])
         y = float(row[1])
-        x = int((x - 200000) / 1000)
-        y = int((y - 200000) / 1000)
+        x = int((x - 200000) / 100000 * 1000)
+        y = int((y - 200000) / 100000 * 1000)
         print(x, y)
-        cv2.circle(img, (x, y), 10, (255, 0, 0), -1)
-    cv2.imwrite('bird_nest.png', img)
+        cv2.circle(img, (x, y), 10, (0, 0, 255), -1)
+    cv2.imwrite('bird_nest_copy.png', img)
 
 def main():
     while 1:

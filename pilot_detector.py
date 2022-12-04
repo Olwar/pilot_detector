@@ -61,7 +61,7 @@ def main():
         violators_info = get_violators_info(violators)
         database_handler(violators_info)
         print(f"check completed in {time.time() - start_time} seconds.")
-        time.sleep(1)
+        time.sleep(0.5)
 
 if __name__ == '__main__':
     main()

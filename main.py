@@ -32,4 +32,4 @@ def get_drones():
 
 @app.get("/img")
 def send_img():
-    return FileResponse('bird_nest_copy.png')
+    return FileResponse('birdnest_copy.png')

@@ -17,31 +17,8 @@ async function getapi(url) {
     show(data);
 }
 
-async function load_pic() {
-    
-    const url = 'http://127.0.0.1:8000/img'
-
-    const options = {
-        method: "GET"
-    }
-
-    let response = await fetch(url, options)
-
-    if (response.status === 200) {
-        
-        const imageBlob = await response.blob()
-        const imageObjectURL = URL.createObjectURL(imageBlob);
-
-        const image = document.createElement('img')
-        image.src = imageObjectURL
-
-        const container = document.getElementById("your-container")
-        container.append(image)
-    }
-    else {
-        console.log("HTTP-Error: " + response.status)
-    }
-}
+// constantly get new info from api_url
+//setInterval(function(){ getapi(api_url); }, 1000);
 
 // Calling that async function
 getapi(api_url);

@@ -47,7 +47,7 @@ def database_handler(violators_info):
     conn = sqlite3.connect('violators.db')
     c = conn.cursor()
     c.execute('''CREATE TABLE IF NOT EXISTS violators
-                 (id integer not null primary key autoincrement unique, time text, name text, email text, phone text, x text, y text)''')
+                 (id integer not null primary key autoincrement, time text, name text, email text, phone text, x text, y text)''')
     for k,v in violators_info.items():
         c.execute("INSERT INTO violators VALUES (?, ?,?,?,?,?,?)", (None, datetime.now(), v[0], v[1], v[2], v[3], v[4]))
     # delete all entries from the same name except the one where x and y are closest to (250 000, 250 000) and are max 10 minutes old
@@ -63,36 +63,37 @@ def drone_marker():
     c = conn.cursor()
     c.execute("SELECT * FROM violators")
     data = c.fetchall()
-    img = cv2.imread('bird_nest.png')
+    img = cv2.imread('birdnest.png')
 
-    # define the maximum age of a drone (in seconds) after which it will be colored fully red
+    # define the maximum age of a drone (in seconds) after which it will be fully transparent
     max_age = 600  # 10 minutes
-    
+
     for row in data:
         x = float(row[5])
         y = float(row[6])
         x = int((x - 200000) / 100000 * 1000)
-        y = int((y - 200000) / 100000 * 1000)
-
+        y = 1000 - (int((y - 200000) / 100000 * 1000))
+        print(x, y)
         # calculate the age of the drone (in seconds) based on its recorded time
         recorded_time = datetime.fromisoformat(row[1])
         current_time = datetime.now()
         age = (current_time - recorded_time).total_seconds()
 
-        # calculate the color of the drone-like shape based on its age
-        color = (0, int(255 * age / max_age), int(255 * (max_age - age) / max_age))  # green to red color gradient
+        # calculate the alpha value of the drone-like shape based on its age
+        alpha = int(255 * age / max_age)
 
         # draw the drone-like shape on the img image using the cv2.circle and cv2.line functions
-        cv2.circle(img, (x, y), 5, color, 2)  # draw the drone's body
-        cv2.line(img, (x-10, y), (x+10, y), color, 2)  # draw the drone's wings
-        cv2.line(img, (x, y-10), (x, y+10), color, 2)  # draw the drone's tail
+        cv2.circle(img, (x, y), 5, (0, 0, 255, alpha), 2)  # draw the drone's body
+        cv2.line(img, (x-10, y), (x+10, y), (0, 0, 255, alpha), 2)  # draw the drone's wings
+        cv2.line(img, (x, y-10), (x, y+10), (0, 0, 255, alpha), 2)  # draw the drone's tail
 
         # display the drone's ID number next to it
-        cv2.putText(img, str(row[0]), (x-20, y+20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
+        cv2.putText(img, str(row[0]), (x-20, y+20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255, alpha), 2)
 
     # save the img image with the drone-like shapes and their ID numbers drawn on it
-    cv2.imwrite('bird_nest_copy.png', img)
+    cv2.imwrite('birdnest_copy.png', img)
     conn.close()
+
 
 
 

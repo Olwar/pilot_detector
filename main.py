@@ -1,7 +1,9 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
 from pilot_detector import main
 import sqlite3
+import cv2
 
 app = FastAPI(title="drone API")
 
@@ -21,10 +23,13 @@ app.add_middleware(
 
 @app.get("/")
 def get_drones():
-    # connect to violators.db and display and return all entries except time
     conn = sqlite3.connect('violators.db')
     c = conn.cursor()
-    c.execute("SELECT name, email, phone, x, y FROM violators")
+    c.execute("SELECT id, name, email, phone, x, y FROM violators")
     rows = c.fetchall()
     conn.close()
     return rows
+
+@app.get("/img")
+def send_img():
+    return FileResponse('bird_nest_copy.png')

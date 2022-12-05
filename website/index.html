@@ -4,12 +4,21 @@
         <title>Violating Drones</title>
     </head>
     <body>
-        <header>
-            <h1 style="text-align:center">Drones Too Close to the Birdnest in the Last 10 Minutes</h1>
-        </header>
+        <div class="header">
+            <h1>Monadikuikka</h1>
+            <p>The Drones that have been too close in the last 10 minutes (shame on you)</p>
+          </div> 
     </body>
 
     <style>
+        .header {
+        padding: 60px;
+        text-align: center;
+        background: #1abc9c;
+        color: white;
+        font-size: 30px;
+        }
+
         .styled-table {
         border-collapse: collapse;
         margin: 25px 0;
@@ -17,6 +26,10 @@
         font-family: sans-serif;
         min-width: 400px;
         box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+        text-align: center;
+        margin-left: auto;
+        margin-right: auto;
+        width: 50%;
         }
 
         .styled-table thead tr {
@@ -42,7 +55,12 @@
             border-bottom: 2px solid #f3f3f3;
         }
 
-
+        .center {
+          display: block;
+          margin-left: auto;
+          margin-right: auto;
+          width: 50%;
+        }
     </style>
 
     <head>
@@ -64,5 +82,6 @@
         </div>
         <!-- table for showing data -->
         <table class="styled-table" id="drones"></table>
+        <img src="http://127.0.0.1:8000/img" class="center"></img>
     </body>
 </html>

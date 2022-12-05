@@ -47,9 +47,9 @@ def database_handler(violators_info):
     conn = sqlite3.connect('violators.db')
     c = conn.cursor()
     c.execute('''CREATE TABLE IF NOT EXISTS violators
-                 (time text, name text, email text, phone text, x text, y text)''')
+                 (id integer not null primary key autoincrement unique, time text, name text, email text, phone text, x text, y text)''')
     for k,v in violators_info.items():
-        c.execute("INSERT INTO violators VALUES (?,?,?,?,?,?)", (datetime.now(), v[0], v[1], v[2], v[3], v[4]))
+        c.execute("INSERT INTO violators VALUES (?, ?,?,?,?,?,?)", (None, datetime.now(), v[0], v[1], v[2], v[3], v[4]))
     # delete all entries from the same name except the one where x and y are closest to (250 000, 250 000) and are max 10 minutes old
     c.execute("DELETE FROM violators WHERE rowid NOT IN (SELECT rowid FROM violators WHERE time > ? GROUP BY name HAVING MIN(ABS(x - 250000) + ABS(y - 250000)))", (datetime.now() - timedelta(minutes=10),))
     conn.commit()
@@ -57,22 +57,44 @@ def database_handler(violators_info):
 
 ## ADD ID TO DATABASE AND NEXT TO THE CIRCLE AND TO THE TABLE
 
-# draws circles over the image in 'bird_nest.png' based on violators.db's x and y, x=250 000, y=250 000 is the center of the image and the edges are at x=300 000, y=300 000 and x=200 000, y=200 000
-def dot_marker():
+# modify the drone_marker function to change the color of the drone-like shape based on its age and to display its ID number
+def drone_marker():
     conn = sqlite3.connect('violators.db')
     c = conn.cursor()
-    c.execute("SELECT x, y FROM violators")
-    rows = c.fetchall()
-    conn.close()
+    c.execute("SELECT * FROM violators")
+    data = c.fetchall()
     img = cv2.imread('bird_nest.png')
-    for row in rows:
-        x = float(row[0])
-        y = float(row[1])
+
+    # define the maximum age of a drone (in seconds) after which it will be colored fully red
+    max_age = 600  # 10 minutes
+    
+    for row in data:
+        x = float(row[5])
+        y = float(row[6])
         x = int((x - 200000) / 100000 * 1000)
         y = int((y - 200000) / 100000 * 1000)
-        print(x, y)
-        cv2.circle(img, (x, y), 10, (0, 0, 255), -1)
+
+        # calculate the age of the drone (in seconds) based on its recorded time
+        recorded_time = datetime.fromisoformat(row[1])
+        current_time = datetime.now()
+        age = (current_time - recorded_time).total_seconds()
+
+        # calculate the color of the drone-like shape based on its age
+        color = (0, int(255 * age / max_age), int(255 * (max_age - age) / max_age))  # green to red color gradient
+
+        # draw the drone-like shape on the img image using the cv2.circle and cv2.line functions
+        cv2.circle(img, (x, y), 5, color, 2)  # draw the drone's body
+        cv2.line(img, (x-10, y), (x+10, y), color, 2)  # draw the drone's wings
+        cv2.line(img, (x, y-10), (x, y+10), color, 2)  # draw the drone's tail
+
+        # display the drone's ID number next to it
+        cv2.putText(img, str(row[0]), (x-20, y+20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
+
+    # save the img image with the drone-like shapes and their ID numbers drawn on it
     cv2.imwrite('bird_nest_copy.png', img)
+    conn.close()
+
+
 
 def main():
     while 1:
@@ -81,7 +103,7 @@ def main():
         violators = check_drone_position(drones)
         violators_info = get_violators_info(violators)
         database_handler(violators_info)
-        dot_marker()
+        drone_marker()
         print(f"check completed in {time.time() - start_time} seconds.")
         time.sleep(0.5)
 

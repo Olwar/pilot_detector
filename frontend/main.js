@@ -2,13 +2,9 @@
 const api_url =
     "http://127.0.0.1:8000/";
 
-// Defining async function
+// gets all the drone data from the fastapi
 async function getapi(url) {
-
-    // Storing response
     const response = await fetch(url);
-
-    // Storing data in form of JSON
     var data = await response.json();
     console.log(data);
     if (response) {
@@ -17,17 +13,13 @@ async function getapi(url) {
     show(data);
 }
 
-// constantly get new info from api_url
-//setInterval(function(){ getapi(api_url); }, 1000);
-
-// Calling that async function
 getapi(api_url);
 
 // Function to hide the loader
 function hideloader() {
     document.getElementById('loading').style.display = 'none';
 }
-// Function to define innerHTML for HTML table
+// Defining the table for the drone data
 function show(data) {
     let tab =  
            `<tr>
@@ -38,8 +30,6 @@ function show(data) {
                 <th>X-coordinate</th>
                 <th>Y-coordinate</th>
             </tr>`;
-
-    // Loop to access all rows 
     for (r of data) {
         tab += `
         <table>
@@ -53,6 +43,5 @@ function show(data) {
             </tr>
         </table>`;
     }
-    // Setting innerHTML as tab variable
     document.getElementById("drones").innerHTML = tab;
 }

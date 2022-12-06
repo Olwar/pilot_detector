@@ -4,10 +4,8 @@ from datetime import datetime, timedelta
 import sqlite3
 import time
 import cv2
-import numpy as np
 
-# no-fly zone coordinates from (300 000, 300 000) to (200 000, 200 000)
-
+# gets all the drone's positions and serial numbers
 def get_drone_data():
     response = requests.get("http://assignments.reaktor.com/birdnest/drones")
     data = response.content
@@ -23,6 +21,7 @@ def get_drone_data():
         i += 1
     return drones
 
+# checks if the drones are violating the no-fly zone
 def check_drone_position(drones):
     violators = {}
     for drone in drones:
@@ -30,7 +29,7 @@ def check_drone_position(drones):
             violators[drone] = drones[drone]
     return violators
 
-# get violator info
+# gets violator's name, email, phonenumber and position
 def get_violators_info(violators):
     violators_info = {}
     for k,v in violators.items():
@@ -43,6 +42,7 @@ def get_violators_info(violators):
         violators_info[k] = [pilot_name, pilot_email, pilot_phone, pos_x, pos_y]
     return(violators_info)
 
+# inserts violator's info to sqlite database and removes all that are older than 10 minutes and if multiple entires from one user, deletes all but the closest one to the one
 def database_handler(violators_info):
     conn = sqlite3.connect('violators.db')
     c = conn.cursor()
@@ -50,52 +50,33 @@ def database_handler(violators_info):
                  (id integer not null primary key autoincrement, time text, name text, email text, phone text, x text, y text)''')
     for k,v in violators_info.items():
         c.execute("INSERT INTO violators VALUES (?, ?,?,?,?,?,?)", (None, datetime.now(), v[0], v[1], v[2], v[3], v[4]))
-    # delete all entries from the same name except the one where x and y are closest to (250 000, 250 000) and are max 10 minutes old
     c.execute("DELETE FROM violators WHERE rowid NOT IN (SELECT rowid FROM violators WHERE time > ? GROUP BY name HAVING MIN(ABS(x - 250000) + ABS(y - 250000)))", (datetime.now() - timedelta(minutes=10),))
     conn.commit()
     conn.close()
 
-## ADD ID TO DATABASE AND NEXT TO THE CIRCLE AND TO THE TABLE
-
-# modify the drone_marker function to change the color of the drone-like shape based on its age and to display its ID number
+# marks the violating drones to the image of the no-fly zone and gradually fades them away as they get older
 def drone_marker():
     conn = sqlite3.connect('violators.db')
     c = conn.cursor()
     c.execute("SELECT * FROM violators")
     data = c.fetchall()
     img = cv2.imread('birdnest.png')
-
-    # define the maximum age of a drone (in seconds) after which it will be fully transparent
     max_age = 600  # 10 minutes
-
     for row in data:
         x = float(row[5])
         y = float(row[6])
         x = int((x - 200000) / 100000 * 1000)
         y = 1000 - (int((y - 200000) / 100000 * 1000))
-        print(x, y)
-        # calculate the age of the drone (in seconds) based on its recorded time
         recorded_time = datetime.fromisoformat(row[1])
         current_time = datetime.now()
         age = (current_time - recorded_time).total_seconds()
-
-        # calculate the alpha value of the drone-like shape based on its age
         alpha = int(255 * age / max_age)
-
-        # draw the drone-like shape on the img image using the cv2.circle and cv2.line functions
         cv2.circle(img, (x, y), 5, (0, 0, 255, alpha), 2)  # draw the drone's body
-        cv2.line(img, (x-10, y), (x+10, y), (0, 0, 255, alpha), 2)  # draw the drone's wings
-        cv2.line(img, (x, y-10), (x, y+10), (0, 0, 255, alpha), 2)  # draw the drone's tail
-
-        # display the drone's ID number next to it
-        cv2.putText(img, str(row[0]), (x-20, y+20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255, alpha), 2)
-
-    # save the img image with the drone-like shapes and their ID numbers drawn on it
+        cv2.line(img, (x-10, y), (x+10, y), (0, 0, 255, alpha), 2)  # draw the drone's side wings
+        cv2.line(img, (x, y-10), (x, y+10), (0, 0, 255, alpha), 2)  # draw the drone's rear wings
+        cv2.putText(img, str(row[0]), (x-20, y+20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255, alpha), 2) # display the drone's ID number next to it
     cv2.imwrite('birdnest_copy.png', img)
     conn.close()
-
-
-
 
 def main():
     while 1:

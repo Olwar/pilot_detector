@@ -13,16 +13,10 @@ async function getapi(url) {
     show(data);
 }
 
-function startLiveUpdate() {
-    setInterval(function() {
-        getapi(api_url);
-        birdnest_img();
-    }, 1000);
-}
-
-document.addEventListener('DOMContentLoaded', function () {
-    startLiveUpdate();
-});
+setTimeout(() => {
+    window.location.reload();
+  }, 3000);
+  
 
 // Function to hide the loader
 function hideloader() {
@@ -54,9 +48,3 @@ function show(data) {
     }
     document.getElementById("drones").innerHTML = tab;
 }
-
-// function birdnest_img() {
-//     var img = document.getElementById("birdnest")
-//     img.src = "http://157.245.65.253/img"
-//     document.body.appendChild("birdnest");
-// }

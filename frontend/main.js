@@ -13,7 +13,7 @@ async function getapi(url) {
     show(data);
 }
 
-getapi(api_url);
+setInterval(getapi(api_url), 2000);
 
 // Function to hide the loader
 function hideloader() {

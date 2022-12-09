@@ -1,6 +1,5 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse
 from pilot_detector import main
 import sqlite3
 
@@ -28,8 +27,3 @@ def get_drones():
     rows = c.fetchall()
     conn.close()
     return rows
-
-# gets the image with the drones marked
-@app.get("/img")
-def send_img():
-    return FileResponse('birdnest_copy.png')

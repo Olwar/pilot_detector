@@ -3,7 +3,6 @@ import xml.etree.ElementTree as ET
 from datetime import datetime, timedelta
 import sqlite3
 import time
-import cv2
 
 # gets all the drone's positions and serial numbers
 def get_drone_data():
@@ -54,30 +53,6 @@ def database_handler(violators_info):
     conn.commit()
     conn.close()
 
-# marks the violating drones to the image of the no-fly zone and gradually fades them away as they get older
-def drone_marker():
-    conn = sqlite3.connect('violators.db')
-    c = conn.cursor()
-    c.execute("SELECT * FROM violators")
-    data = c.fetchall()
-    img = cv2.imread('birdnest.png')
-    max_age = 600  # 10 minutes
-    for row in data:
-        x = float(row[5])
-        y = float(row[6])
-        x = int((x - 200000) / 100000 * 1000)
-        y = 1000 - (int((y - 200000) / 100000 * 1000))
-        recorded_time = datetime.fromisoformat(row[1])
-        current_time = datetime.now()
-        age = (current_time - recorded_time).total_seconds()
-        alpha = int(255 * age / max_age)
-        cv2.circle(img, (x, y), 5, (0, 0, 255, alpha), 2)  # draw the drone's body
-        cv2.line(img, (x-10, y), (x+10, y), (0, 0, 255, alpha), 2)  # draw the drone's side wings
-        cv2.line(img, (x, y-10), (x, y+10), (0, 0, 255, alpha), 2)  # draw the drone's rear wings
-        cv2.putText(img, str(row[0]), (x-20, y+20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255, alpha), 2) # display the drone's ID number next to it
-    cv2.imwrite('birdnest_copy.png', img)
-    conn.close()
-
 def main():
     while 1:
         start_time = time.time()
@@ -85,7 +60,6 @@ def main():
         violators = check_drone_position(drones)
         violators_info = get_violators_info(violators)
         database_handler(violators_info)
-        drone_marker()
         print(f"check completed in {time.time() - start_time} seconds.")
         time.sleep(0.5)
 

@@ -1,6 +1,6 @@
 // api url
 const api_url =
-    "http://157.245.65.253/";
+    "https://134-122-52-132.sslip.io/";
 
 // gets all the drone data from the fastapi
 async function getapi(url) {
@@ -13,10 +13,10 @@ async function getapi(url) {
     show(data);
 }
 
+// updates the table without manual refresh
 function startLiveUpdate() {
     setInterval(function() {
         getapi(api_url);
-        //birdnest_img();
     }, 2000);
 }
 
@@ -54,9 +54,3 @@ function show(data) {
     }
     document.getElementById("drones").innerHTML = tab;
 }
-
-// function birdnest_img() {
-//     var img = document.getElementById("birdnest")
-//     img.src = "http://157.245.65.253/img"
-//     document.body.appendChild("birdnest");
-// }

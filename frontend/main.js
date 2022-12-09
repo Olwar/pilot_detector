@@ -32,7 +32,6 @@ function hideloader() {
 function show(data) {
     let tab =  
            `<tr>
-                <th>id</th>
                 <th>Name</th>
                 <th>Email</th>
                 <th>Phone</th>
@@ -43,7 +42,6 @@ function show(data) {
         tab += `
         <table>
             <tr>
-                <td>${r[0]}</td>
                 <td>${r[1]}</td>
                 <td>${r[2]}</td>
                 <td>${r[3]}</td>

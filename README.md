@@ -21,5 +21,5 @@ All the goals were met in this repository.
 You can see the project here: https://seraphinabot.dev/nomadikuikka/
 
 The backend is running on DigitalOcean's cloud and constatly queries the given endpoint and builds a up-to-date SQL-database from the information.
-The database is used by the FastAPI-python script that can be queried here: https://134-122-52-132.sslip.io/ . *Sslip is a DNS-service that can turn any ip-address into a domain*
+The database is used by the FastAPI-python script that can be queried here: https://134-122-52-132.sslip.io/ . *Sslip is a DNS-service that can turn any ip-address into a domain.*
 The frontend is running on GitHub Pages and redirected to a domain I own.

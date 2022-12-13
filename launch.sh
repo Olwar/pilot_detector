@@ -9,8 +9,22 @@ pip install -r requirements.txt
 cd backend
 python3 pilot_detector.py > /dev/null &
 uvicorn main:app --reload > /dev/null &
+sleep 5
 
 # run the frontend
 cd ../frontend
-echo "Press that ip-address to see the website"
-python -m http.server 1337
+echo "Press that ip-address with port 1337 to see the website"
+python3 -m http.server 1337
+
+echo " "
+echo "Write kill to kill all the processes"
+while :
+do
+    read var
+    if  [ "$var" = "kill" ]
+        then
+            killall python3 > /dev/null &
+            pkill uvicorn > /dev/null &
+            break
+        fi 
+done

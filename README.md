@@ -26,4 +26,5 @@ The frontend is running on GitHub Pages and redirected to a domain I own.
 
 #### How to Launch Locally
 At the root of the folder, run `bash launch.sh`. It should install all the required depencies, run fastapi, run the database-updater and run the website locally.
+Press the ip-address ending with :1337 to see the website.
 The main.js is quering the webserver that is running on DigitalOcean though but you can change it to the local fastapi-address in the main.js.

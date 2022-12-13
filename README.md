@@ -23,3 +23,7 @@ You can see the project here: https://seraphinabot.dev/nomadikuikka/
 The backend is running on DigitalOcean's cloud and constatly queries the given endpoint and builds a up-to-date SQL-database from the information.
 The database is used by the FastAPI-python script that can be queried here: https://134-122-52-132.sslip.io/ . *Sslip is a DNS-service that can turn any ip-address into a domain.*
 The frontend is running on GitHub Pages and redirected to a domain I own.
+
+#### How to Launch Locally
+At the root of the folder, run `bash launch.sh`. It should install all the required depencies, run fastapi, run the database-updater and run the website locally.
+The main.js is quering the webserver that is running on DigitalOcean though but you can change it to the local fastapi-address in the main.js.

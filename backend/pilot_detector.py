@@ -3,6 +3,7 @@ import xml.etree.ElementTree as ET
 from datetime import datetime, timedelta
 import sqlite3
 import time
+import math
 
 # gets all the drone's positions and serial numbers
 def get_drone_data():
@@ -28,7 +29,13 @@ def check_drone_position(drones):
             violators[drone] = drones[drone]
     return violators
 
-# gets violator's name, email, phonenumber and position
+# calculates distance to the nest in meters from pos_x is from 0-500000 and pos_y is from 0-500000, x=250000 equals 0 meters, x=0 is 250 meters and x=500000 is 250 meters and so on
+def calculate_distance(pos_x, pos_y):
+    x_dist = abs(pos_x - 250000) / 1000
+    y_dist = abs(pos_y - 250000) / 1000
+    return math.sqrt(x_dist**2 + y_dist**2)
+
+# gets violator's name, email, phonenumber and distance to the nest in meters, 250000 equals 0 meters and 0 is 250 meters, 500000 is 500 meters and so on
 def get_violators_info(violators):
     violators_info = {}
     for k,v in violators.items():
@@ -38,7 +45,8 @@ def get_violators_info(violators):
         pilot_email = data['email']
         pilot_phone = data['phoneNumber']
         pos_x, pos_y = v[1], v[2]
-        violators_info[k] = [pilot_name, pilot_email, pilot_phone, pos_x, pos_y]
+        distance = calculate_distance(float(pos_x), float(pos_y))
+        violators_info[k] = [pilot_name, pilot_email, pilot_phone, pos_x, pos_y, distance]
     return(violators_info)
 
 # inserts violator's info to sqlite database and removes all that are older than 10 minutes and if multiple entires from one user, deletes all but the closest one to the one
@@ -46,9 +54,9 @@ def database_handler(violators_info):
     conn = sqlite3.connect('violators.db')
     c = conn.cursor()
     c.execute('''CREATE TABLE IF NOT EXISTS violators
-                 (id integer not null primary key autoincrement, time text, name text, email text, phone text, x text, y text)''')
+                 (id integer not null primary key autoincrement, time text, name text, email text, phone text, x text, y text, distance text)''')
     for k,v in violators_info.items():
-        c.execute("INSERT INTO violators VALUES (?, ?,?,?,?,?,?)", (None, datetime.now(), v[0], v[1], v[2], v[3], v[4]))
+        c.execute("INSERT INTO violators VALUES (?,?,?,?,?,?,?,?)", (None, datetime.now(), v[0], v[1], v[2], v[3], v[4], v[5]))
     c.execute("DELETE FROM violators WHERE rowid NOT IN (SELECT rowid FROM violators WHERE time > ? GROUP BY name HAVING MIN(ABS(x - 250000) + ABS(y - 250000)))", (datetime.now() - timedelta(minutes=10),))
     conn.commit()
     conn.close()

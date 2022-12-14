@@ -23,7 +23,7 @@ app.add_middleware(
 def get_drones():
     conn = sqlite3.connect('violators.db')
     c = conn.cursor()
-    c.execute("SELECT id, name, email, phone, x, y FROM violators")
+    c.execute("SELECT id, name, email, phone, distance FROM violators")
     rows = c.fetchall()
     conn.close()
     return rows

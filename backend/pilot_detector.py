@@ -29,7 +29,7 @@ def check_drone_position(drones):
             violators[drone] = drones[drone]
     return violators
 
-# calculates distance to the nest in meters from pos_x is from 0-500000 and pos_y is from 0-500000, x=250000 equals 0 meters, x=0 is 250 meters and x=500000 is 250 meters and so on
+# calculates distance to the nest in meters
 def calculate_distance(pos_x, pos_y):
     x_dist = abs(pos_x - 250000) / 1000
     y_dist = abs(pos_y - 250000) / 1000

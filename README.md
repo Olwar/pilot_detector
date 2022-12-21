@@ -1,6 +1,6 @@
 # pilot_detector
 
-##### This project was made for a company as a pre-assignment in the job application process.
+##### This project was made for a company as a pre-assignment in a job application process.
 
 #### The goal
 Build and deploy a web application which lists all the pilots, from a given endpoint, who recently violated the NDZ perimeter (were too close to a nest).
